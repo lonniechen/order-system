@@ -1,0 +1,29 @@
+import {
+    TypeOrmOptionsFactory,
+    TypeOrmModuleOptions
+} from '@nestjs/typeorm'
+
+export class MongodbOptions implements TypeOrmOptionsFactory {
+
+    private entityPath: string;
+
+    constructor(entityPath: string) {
+        this.entityPath = entityPath
+    }
+
+    async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
+        return {
+            type: 'mongodb',
+            host: '127.0.0.1',
+            port: 27017,
+            // username:null,
+            // password:null,
+            database: 'test',
+            keepConnectionAlive: true,
+            synchronize: false,
+            useUnifiedTopology: true,
+            entities: [this.entityPath]
+        } as TypeOrmModuleOptions
+    }
+
+}

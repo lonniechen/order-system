@@ -1,0 +1,22 @@
+{
+  "name": "order-system-project",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lonniechen/order-system.git"
+  },
+  "author": "Lang CHEN",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lonniechen/order-system/issues"
+  },
+  "homepage": "https://github.com/lonniechen/order-system#readme",
+  "dependencies": {
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}

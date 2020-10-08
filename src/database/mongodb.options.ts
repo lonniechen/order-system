@@ -18,7 +18,7 @@ export class MongodbOptions implements TypeOrmOptionsFactory {
             port: 27017,
             // username:null,
             // password:null,
-            database: 'test',
+            database: 'project',
             keepConnectionAlive: true,
             synchronize: false,
             useUnifiedTopology: true,

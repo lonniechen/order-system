@@ -12,7 +12,7 @@ async function bootstrap() {
         new FastifyAdapter()
     );
 
-    const port = 9394;
+    const port = 8080;
     await app.listen(port, '0.0.0.0');
 }
 

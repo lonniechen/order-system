@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import {
+    Injectable,
+    HttpService
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MongoRepository } from 'typeorm'
 
@@ -10,17 +13,31 @@ export class ApiOrdersService {
 
     constructor(
         @InjectRepository(EntityOrders, DB_CONN_ORDER)
-        private readonly orderRepository: MongoRepository<EntityOrders>
+        private readonly orderRepository: MongoRepository<EntityOrders>,
+
+        private readonly httpService: HttpService
     ) { }
 
-    async add() {
-        const testObj = {
-            origin: [],
-            destination: [],
-            distance: 100,
+    async placeOrder(origin: Array<string>, destination: Array<string>) {
+
+        const reqConfig = {
+            params: {
+                origins: origin.join(','),
+                destinations: destination.join(','),
+                key: 'AIzaSyDZHxHsasPQ37Lo-f15C_rcQsxSE9ImcNk'
+            }
+        }
+        const distanceRes = await this.httpService.get('https://maps.googleapis.com/maps/api/distancematrix/json', reqConfig).toPromise()
+        const distance = distanceRes.data.rows[0].elements[0].distance.value;
+        
+        const newOrder = {
+            origin: origin,
+            destination: destination,
+            distance: distance,
             status: "UNASSIGNED"
         }
-        const result = await this.orderRepository.save(testObj)
+        const result = await this.orderRepository.save(newOrder)
+
         return result;
     }
 

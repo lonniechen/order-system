@@ -1,1 +1,1 @@
-export const DB_CONN_ORDER = 'orderConn'
+export const DB_CONN_ORDER = 'ordersConnection'

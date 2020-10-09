@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { EntityOrders } from '../../entities/orders/orders.entity';
@@ -19,7 +19,8 @@ import { DB_CONN_ORDER } from '../../../constants/database.constants'
                 EntityOrders
             ],
             DB_CONN_ORDER
-        )
+        ),
+        HttpModule
     ]
 })
 export class ApiOrdersModule { }

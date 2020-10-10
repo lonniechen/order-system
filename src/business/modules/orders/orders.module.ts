@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityOrders } from '../../entities/orders/orders.entity';
 import { ApiOrdersController } from './orders.controller';
 import { ApiOrdersService } from './orders.service';
-import { DB_CONN_ORDER } from '../../../constants/database.constants'
+import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options'
 
 @Module({
     controllers: [
@@ -18,7 +18,7 @@ import { DB_CONN_ORDER } from '../../../constants/database.constants'
             [
                 EntityOrders
             ],
-            DB_CONN_ORDER
+            DB_CONN_NAME_ORDER
         ),
         HttpModule
     ]

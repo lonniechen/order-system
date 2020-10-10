@@ -6,13 +6,13 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { MongoRepository } from 'typeorm'
 
 import { EntityOrders } from '../../entities/orders/orders.entity'
-import { DB_CONN_ORDER } from '../../../constants/database.constants'
+import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options'
 
 @Injectable()
 export class ApiOrdersService {
 
     constructor(
-        @InjectRepository(EntityOrders, DB_CONN_ORDER)
+        @InjectRepository(EntityOrders, DB_CONN_NAME_ORDER)
         private readonly orderRepository: MongoRepository<EntityOrders>,
 
         private readonly httpService: HttpService
@@ -20,14 +20,14 @@ export class ApiOrdersService {
 
     async placeOrder(origin: Array<string>, destination: Array<string>) {
 
-        const reqConfig = {
+        const distanceReqConfig = {
             params: {
                 origins: origin.join(','),
                 destinations: destination.join(','),
                 key: 'AIzaSyDZHxHsasPQ37Lo-f15C_rcQsxSE9ImcNk'
             }
         }
-        const distanceRes = await this.httpService.get('https://maps.googleapis.com/maps/api/distancematrix/json', reqConfig).toPromise()
+        const distanceRes = await this.httpService.get('https://maps.googleapis.com/maps/api/distancematrix/json', distanceReqConfig).toPromise()
         const distance = distanceRes.data.rows[0].elements[0].distance.value;
         
         const newOrder = {
@@ -40,6 +40,5 @@ export class ApiOrdersService {
 
         return result;
     }
-
 
 }

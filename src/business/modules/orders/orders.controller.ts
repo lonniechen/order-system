@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { ApiOrdersService } from './orders.service'
+import { CoordinateValidationPipe } from '../../pipes/orders/coordinate.pipe'
 
 @Controller('/orders')
 export class ApiOrdersController {
@@ -16,14 +17,14 @@ export class ApiOrdersController {
 
     @Post('')
     async placeOrder(
-        @Body('origin') origin: Array<string>,
-        @Body('destination') destination: Array<string>,
+        @Body('origin', CoordinateValidationPipe) origin: Array<string>,
+        @Body('destination', CoordinateValidationPipe) destination: Array<string>,
     ) {
-        const result = await this.ordersService.placeOrder(origin, destination);
+        const newOrder = await this.ordersService.placeOrder(origin, destination);
         const res = {
-            id: result.id,
-            distance: result.distance,
-            status: result.status
+            id: newOrder.id,
+            distance: newOrder.distance,
+            status: newOrder.status
         }
         return res
     }

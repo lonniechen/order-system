@@ -1,1 +1,0 @@
-export const DB_CONN_ORDER = 'ordersConnection'

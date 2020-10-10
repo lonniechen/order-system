@@ -27,3 +27,5 @@ export class MongodbOptions implements TypeOrmOptionsFactory {
     }
 
 }
+
+export const DB_CONN_NAME_ORDER = 'ordersConnection'

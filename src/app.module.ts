@@ -14,10 +14,10 @@ import { CoordinateValidationPipe } from './business/pipes/orders/coordinate.pip
         TypeOrmModule.forRootAsync({
             name: DB_CONN_NAME_ORDER,
             useFactory: () => {
-                const test = new MongodbOptions(
+                const mongodbOptions = new MongodbOptions(
                     `${__dirname}/business/entities/**/*`
                 );
-                return test.createTypeOrmOptions();
+                return mongodbOptions.createTypeOrmOptions();
             },
         }),
 

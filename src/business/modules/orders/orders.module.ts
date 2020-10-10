@@ -5,13 +5,15 @@ import { EntityOrders } from '../../entities/orders/orders.entity';
 import { ApiOrdersController } from './orders.controller';
 import { ApiOrdersService } from './orders.service';
 import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options'
+import { ApiService } from '../utilities/api.service';
 
 @Module({
     controllers: [
         ApiOrdersController
     ],
     providers: [
-        ApiOrdersService
+        ApiOrdersService,
+        ApiService
     ],
     imports: [
         TypeOrmModule.forFeature(

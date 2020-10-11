@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import {
+    Injectable,
+    InternalServerErrorException
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MongoRepository } from 'typeorm'
 
@@ -17,18 +20,25 @@ export class ApiOrdersService {
     ) { }
 
     async placeOrder(origin: Array<string>, destination: Array<string>) {
+        try {
 
-        const distance = await this.apiService.getDistance(origin, destination)
+            const distance = await this.apiService.getDistance(origin, destination)
 
-        const newOrder = {
-            origin: origin,
-            destination: destination,
-            distance: distance,
-            status: "UNASSIGNED"
+            const newOrder = {
+                origin: origin,
+                destination: destination,
+                distance: distance,
+                status: 'UNASSIGNED',
+                createdTimestamp: new Date(),
+                updatedTimestamp: new Date()
+            }
+            const result = await this.orderRepository.save(newOrder)
+
+            return result;
+
+        } catch (error) {
+            throw new InternalServerErrorException(error.message)
         }
-        const result = await this.orderRepository.save(newOrder)
-
-        return result;
     }
 
 }

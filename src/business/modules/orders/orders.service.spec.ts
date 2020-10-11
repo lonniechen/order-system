@@ -4,7 +4,10 @@ import { EntityOrders } from '../../entities/orders/orders.entity';
 import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options';
 import { Repository } from 'typeorm';
 import { ApiOrdersService } from './orders.service';
-import { HttpModule } from '@nestjs/common';
+import {
+    HttpModule,
+    InternalServerErrorException
+} from '@nestjs/common';
 import { ApiService } from '../utilities/api.service';
 
 describe('ApiOrdersService', () => {
@@ -34,16 +37,26 @@ describe('ApiOrdersService', () => {
     });
 
     describe('placeOrder', () => {
+
+        const origin = ['40.66', '-73.89'];
+        const destination = ['40.66', '-73.99'];
+        const status = 'UNASSIGNED';
+        const id = '5f81101ea85d4822302026a4';
+        const distance = 9790;
+        const createdTimestamp = new Date('2020-01-01');
+        const updatedTimestamp = new Date('2020-01-02');
+
+        const errorMessage = 'An Error'
+
         it('should return the origin, destination, id, distance and status of an order', async () => {
-            const distance = 9790;
-            const origin = ["40.66", "-73.89"];
-            const destination = ["40.66", "-73.99"];
             const result = {
                 origin: origin,
                 destination: destination,
-                status: "UNASSIGNED",
-                id: "5f81101ea85d4822302026a4",
-                distance: distance
+                status: status,
+                id: id,
+                distance: distance,
+                createdTimestamp: createdTimestamp,
+                updatedTimestamp: updatedTimestamp
             }
             jest.spyOn(apiService, 'getDistance').mockImplementation(() => Promise.resolve(distance));
             jest.spyOn(orderRepository, 'save').mockImplementation(() => Promise.resolve(result));
@@ -51,5 +64,21 @@ describe('ApiOrdersService', () => {
                 await ordersService.placeOrder(origin, destination)
             ).toMatchObject(result);
         });
+
+        it('should capture the exception from ApiService and throw internal server error exception', async () => {
+            jest.spyOn(apiService, 'getDistance').mockRejectedValue(new Error(errorMessage))
+            expect(
+                ordersService.placeOrder(origin, destination)
+            ).rejects.toThrow(new InternalServerErrorException(errorMessage));
+        });
+
+        it('should capture the exception from OrderEntityRepository and throw internal server error exception', async () => {
+            jest.spyOn(apiService, 'getDistance').mockImplementation(() => Promise.resolve(distance));
+            jest.spyOn(orderRepository, 'save').mockRejectedValue(new Error(errorMessage));
+            expect(
+                ordersService.placeOrder(origin, destination)
+            ).rejects.toThrow(new InternalServerErrorException(errorMessage));
+        });
+
     });
 });

@@ -3,7 +3,8 @@ import {
     Controller,
     Get,
     Patch,
-    Post
+    Post,
+    InternalServerErrorException
 } from '@nestjs/common';
 
 import { ApiOrdersService } from './orders.service'
@@ -20,13 +21,17 @@ export class ApiOrdersController {
         @Body('origin', CoordinateValidationPipe) origin: Array<string>,
         @Body('destination', CoordinateValidationPipe) destination: Array<string>,
     ) {
-        const newOrder = await this.ordersService.placeOrder(origin, destination);
-        const res = {
-            id: newOrder.id,
-            distance: newOrder.distance,
-            status: newOrder.status
+        try {
+            const newOrder = await this.ordersService.placeOrder(origin, destination);
+            const res = {
+                id: newOrder.id,
+                distance: newOrder.distance,
+                status: newOrder.status
+            }
+            return res
+        } catch (error) {
+            throw new InternalServerErrorException(error.message)
         }
-        return res
     }
 
     @Patch()

@@ -6,7 +6,7 @@ import { Test } from '@nestjs/testing'
 import { CoordinateValidationPipe } from './coordinate.pipe'
 
 describe('CoordinateValidationPipe', () => {
-    
+
     let coordinanteValidationPipe: CoordinateValidationPipe;
 
     beforeEach(async () => {
@@ -36,6 +36,13 @@ describe('CoordinateValidationPipe', () => {
                 default: return new BadRequestException()
             }
         }
+
+        it('should return coordinate if the input is valid', async () => {
+            const coordinate = ['40.66', "-74.89"]
+            expect(
+                await coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
+            ).toStrictEqual(coordinate)
+        });
 
         it('should throw exception for null coordinate', async () => {
             const coordinate = null
@@ -74,7 +81,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of length equals to 3', async () => {
-            const coordinate = ["40.66", "-73.89", "10.22"]
+            const coordinate = ['40.66', '-73.89', "10.22"]
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -83,7 +90,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate with non-string element', async () => {
-            const coordinate = ["40.66", -73.89]
+            const coordinate = ['40.66', -73.89]
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -92,7 +99,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of alphabetical latlong', async () => {
-            const coordinate = ["aaaa", "-73.89"]
+            const coordinate = ["aaaa", '-73.89']
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -101,20 +108,12 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of alphabetical latlong', async () => {
-            const coordinate = ["999", "-73.89"]
+            const coordinate = ["999", '-73.89']
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
                 generateBadRequestException('invalid-latlong')
             );
         });
-
-        it('should return coordinate if the input is valid', async () => {
-            const coordinate = ["40.66", "-74.89"]
-            expect(
-                await coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
-            ).toStrictEqual(coordinate)
-        });
-
     });
 });

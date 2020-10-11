@@ -22,4 +22,10 @@ export class EntityOrders {
 
     @Column()
     status: string;
+
+    @Column()
+    createdTimestamp: Date;
+
+    @Column()
+    updatedTimestamp: Date;
 }

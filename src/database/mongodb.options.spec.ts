@@ -1,7 +1,7 @@
 import { MongodbOptions } from './mongodb.options';
 
 describe('MongodbOptions', () => {
-    it('should return the ', async () => {
+    it('should return typeOrmOptions', async () => {
         const mongodbOptions = new MongodbOptions('path');;
 
         expect(

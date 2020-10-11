@@ -23,7 +23,7 @@ describe('CoordinateValidationPipe', () => {
 
         const metaDataOrigin: ArgumentMetadata = {
             data: 'origin',
-            type: null
+            type: 'body'
         }
         const generateBadRequestException = (exceptionType: string) => {
             switch (exceptionType) {
@@ -36,13 +36,6 @@ describe('CoordinateValidationPipe', () => {
                 default: return new BadRequestException()
             }
         }
-
-        it('should return coordinate if the input is valid', async () => {
-            const coordinate = ['40.66', "-74.89"]
-            expect(
-                await coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
-            ).toStrictEqual(coordinate)
-        });
 
         it('should throw exception for null coordinate', async () => {
             const coordinate = null
@@ -114,6 +107,13 @@ describe('CoordinateValidationPipe', () => {
             ).rejects.toThrow(
                 generateBadRequestException('invalid-latlong')
             );
+        });
+
+        it('should return coordinate if the input is valid', async () => {
+            const coordinate = ['40.66', "-74.89"]
+            expect(
+                await coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
+            ).toStrictEqual(coordinate)
         });
     });
 });

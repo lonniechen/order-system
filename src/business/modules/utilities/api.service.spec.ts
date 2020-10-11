@@ -27,39 +27,11 @@ describe('ApiService', () => {
     });
 
     describe('getDistance', () => {
-
         const origin = ['40.66', '-73.89'];
         const destination = ['40.66', '-73.99'];
         const distance = 9790;
 
         const errorMessage = 'unable to get proper data from distance API'
-
-        it('should return the distance for given origins and destinations', async () => {
-            const distanceApiResponse = {
-                data: {
-                    rows: [
-                        {
-                            elements: [
-                                {
-                                    distance: {
-                                        value: distance
-                                    },
-                                    status: 'OK'
-                                }
-                            ]
-                        }
-                    ],
-                },
-                status: 200,
-                statusText: 'OK',
-                headers: {},
-                config: {},
-            }
-            jest.spyOn(httpService, 'get').mockImplementation(() => of(distanceApiResponse));
-            expect(
-                await apiService.getDistance(origin, destination)
-            ).toEqual(distance);
-        });
 
         it('should throw internal server error exception if distance value is null', async () => {
             const distanceApiResponse = {
@@ -252,6 +224,33 @@ describe('ApiService', () => {
             expect(
                 apiService.getDistance(origin, destination)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
+        });
+
+        it('should return the distance for given origins and destinations', async () => {
+            const distanceApiResponse = {
+                data: {
+                    rows: [
+                        {
+                            elements: [
+                                {
+                                    distance: {
+                                        value: distance
+                                    },
+                                    status: 'OK'
+                                }
+                            ]
+                        }
+                    ],
+                },
+                status: 200,
+                statusText: 'OK',
+                headers: {},
+                config: {},
+            }
+            jest.spyOn(httpService, 'get').mockImplementation(() => of(distanceApiResponse));
+            expect(
+                await apiService.getDistance(origin, destination)
+            ).toEqual(distance);
         });
     });
 });

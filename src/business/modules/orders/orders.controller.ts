@@ -4,11 +4,14 @@ import {
     Get,
     Patch,
     Post,
-    InternalServerErrorException
+    InternalServerErrorException,
+    Param,
+    Query
 } from '@nestjs/common';
 
 import { ApiOrdersService } from './orders.service'
 import { CoordinateValidationPipe } from '../../pipes/orders/coordinate.pipe'
+import { PageLimitValidationPipe } from '../../pipes/orders/page-limit.pipe'
 
 @Controller('/orders')
 export class ApiOrdersController {
@@ -22,26 +25,31 @@ export class ApiOrdersController {
         @Body('destination', CoordinateValidationPipe) destination: Array<string>,
     ) {
         try {
-            const newOrder = await this.ordersService.placeOrder(origin, destination);
-            const res = {
-                id: newOrder.id,
-                distance: newOrder.distance,
-                status: newOrder.status
-            }
+            const res = await this.ordersService.placeOrder(origin, destination);
             return res
         } catch (error) {
             throw new InternalServerErrorException(error.message)
         }
     }
 
-    @Patch()
-    async takeOrder() {
+    @Patch(':id')
+    async takeOrder(
+        @Param('id') id: string
+    ) {
         return "take order API"
     }
 
     @Get()
-    async getOrderList() {
-        return "get order list API"
+    async getOrderList(
+        @Query('page', PageLimitValidationPipe) page: number,
+        @Query('limit', PageLimitValidationPipe) limit: number,
+    ) {
+        try {
+            const res = await this.ordersService.getOrderList(page, limit);
+            return res;
+        } catch (error) {
+            throw new InternalServerErrorException(error.message)
+        }
     }
 
 }

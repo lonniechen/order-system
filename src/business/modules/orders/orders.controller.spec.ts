@@ -37,43 +37,78 @@ describe('ApiOrdersController', () => {
     });
 
     describe('placeOrder', () => {
-
         const origin = ['40.66', '-73.89'];
         const destination = ['40.66', '-73.99'];
         const status = 'UNASSIGNED';
         const id = '5f81101ea85d4822302026a4';
         const distance = 9790;
-        const createdTimestamp = new Date('2020-01-01');
-        const updatedTimestamp = new Date('2020-01-02');
 
         const errorMessage = 'An error'
-
-        it('should return the id, distance and status of an order', async () => {
-            const newOrder = {
-                origin: origin,
-                destination: destination,
-                status: status,
-                id: id,
-                distance: distance,
-                createdTimestamp: createdTimestamp,
-                updatedTimestamp: updatedTimestamp
-            };
-            jest.spyOn(ordersService, 'placeOrder').mockImplementation(() => Promise.resolve(newOrder));
-
-            expect(
-                await ordersController.placeOrder(origin, destination)
-            ).toMatchObject({
-                status: status,
-                id: id,
-                distance: distance
-            });
-        });
 
         it('should capture the exception from ApiOrdersService and throw internal server error exception', async () => {
             jest.spyOn(ordersService, 'placeOrder').mockRejectedValue(new Error(errorMessage));
             expect(
                 ordersController.placeOrder(origin, destination)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage))
+        });
+
+        it('should return the id, distance and status of an order', async () => {
+            const res = {
+                status: status,
+                id: id,
+                distance: distance,
+            };
+            jest.spyOn(ordersService, 'placeOrder').mockImplementation(() => Promise.resolve(res));
+
+            expect(
+                await ordersController.placeOrder(origin, destination)
+            ).toMatchObject(res);
+        });
+    });
+
+    describe('getOrderList', () => {
+        const page = 2;
+        const limit = 2;
+
+        const errorMessage = 'An Error'
+
+        it('should capture the exception from ApiOrdersService and throw internal server error exception', async () => {
+            jest.spyOn(ordersService, 'getOrderList').mockRejectedValue(new Error(errorMessage));
+            expect(
+                ordersController.getOrderList(page, limit)
+            ).rejects.toThrow(new InternalServerErrorException(errorMessage))
+        });
+
+        it('should return an empty array if there are no results from ApiOrdersService', async () => {
+            const res: any[] = []
+            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(res));
+            expect(
+                await ordersController.getOrderList(page, limit)
+            ).toMatchObject([]);
+        });
+
+        it('should return an array of EntityOrders', async () => {
+            const status = 'UNASSIGNED';
+            const distance = 9790;
+            const id1 = '5f81101ea85d4822302026a4';
+            const id2 = '5f81101ea85d4822302026a5';
+
+            const res: any[] = [
+                {
+                    status: status,
+                    id: id1,
+                    distance: distance,
+                },
+                {
+                    status: status,
+                    id: id2,
+                    distance: distance,
+                },
+            ]
+            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(res));
+            expect(
+                await ordersController.getOrderList(page, limit)
+            ).toMatchObject(res);
         });
     });
 });

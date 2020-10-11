@@ -37,7 +37,6 @@ describe('ApiOrdersService', () => {
     });
 
     describe('placeOrder', () => {
-
         const origin = ['40.66', '-73.89'];
         const destination = ['40.66', '-73.99'];
         const status = 'UNASSIGNED';
@@ -47,23 +46,6 @@ describe('ApiOrdersService', () => {
         const updatedTimestamp = new Date('2020-01-02');
 
         const errorMessage = 'An Error'
-
-        it('should return the origin, destination, id, distance and status of an order', async () => {
-            const result = {
-                origin: origin,
-                destination: destination,
-                status: status,
-                id: id,
-                distance: distance,
-                createdTimestamp: createdTimestamp,
-                updatedTimestamp: updatedTimestamp
-            }
-            jest.spyOn(apiService, 'getDistance').mockImplementation(() => Promise.resolve(distance));
-            jest.spyOn(orderRepository, 'save').mockImplementation(() => Promise.resolve(result));
-            expect(
-                await ordersService.placeOrder(origin, destination)
-            ).toMatchObject(result);
-        });
 
         it('should capture the exception from ApiService and throw internal server error exception', async () => {
             jest.spyOn(apiService, 'getDistance').mockRejectedValue(new Error(errorMessage))
@@ -80,5 +62,101 @@ describe('ApiOrdersService', () => {
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
         });
 
+        it('should return the origin, destination, id, distance and status of an order', async () => {
+            const newOrder: EntityOrders = {
+                origin: origin,
+                destination: destination,
+                status: status,
+                id: id,
+                distance: distance,
+                createdTimestamp: createdTimestamp,
+                updatedTimestamp: updatedTimestamp
+            }
+            jest.spyOn(apiService, 'getDistance').mockImplementation(() => Promise.resolve(distance));
+            jest.spyOn(orderRepository, 'save').mockImplementation(() => Promise.resolve(newOrder));
+            expect(
+                await ordersService.placeOrder(origin, destination)
+            ).toMatchObject({
+                status: status,
+                id: id,
+                distance: distance
+            });
+        });
+    });
+
+    describe('getOrderList', () => {
+        const page = 2;
+        const limit = 2;
+
+        const errorMessage = 'An Error'
+
+        it('should capture the exception from OrderEntityRepository and throw internal server error exception', async () => {
+            jest.spyOn(orderRepository, 'findAndCount').mockRejectedValue(new Error(errorMessage));
+            expect(
+                ordersService.getOrderList(page, limit)
+            ).rejects.toThrow(new InternalServerErrorException(errorMessage));
+        });
+
+        it('should return an empty array if there are no results', async () => {
+            const paginationResult: [EntityOrders[], number] = [
+                [],
+                0
+            ]
+            jest.spyOn(orderRepository, 'findAndCount').mockImplementation(() => Promise.resolve(paginationResult));
+            expect(
+                await ordersService.getOrderList(page, limit)
+            ).toMatchObject([]);
+        });
+
+        it('should return an array of EntityOrders', async () => {
+            const origin = ['40.66', '-73.89'];
+            const destination = ['40.66', '-73.99'];
+            const status = 'UNASSIGNED';
+            const distance = 9790;
+            const createdTimestamp = new Date('2020-01-01');
+            const updatedTimestamp = new Date('2020-01-02');
+            const id1 = '5f81101ea85d4822302026a4';
+            const id2 = '5f81101ea85d4822302026a5';
+
+            const paginationResult: [EntityOrders[], number] = [
+                [
+                    {
+                        origin: origin,
+                        destination: destination,
+                        status: status,
+                        id: id1,
+                        distance: distance,
+                        createdTimestamp: createdTimestamp,
+                        updatedTimestamp: updatedTimestamp
+                    },
+                    {
+                        origin: origin,
+                        destination: destination,
+                        status: status,
+                        id: id2,
+                        distance: distance,
+                        createdTimestamp: createdTimestamp,
+                        updatedTimestamp: updatedTimestamp
+                    },
+                ],
+                2
+            ]
+            jest.spyOn(orderRepository, 'findAndCount').mockImplementation(() => Promise.resolve(paginationResult));
+            expect(
+                await ordersService.getOrderList(page, limit)
+            ).toMatchObject([
+                {
+                    status: status,
+                    id: id1,
+                    distance: distance
+
+                },
+                {
+                    status: status,
+                    id: id2,
+                    distance: distance
+                },
+            ]);
+        });
     });
 });

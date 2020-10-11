@@ -24,7 +24,7 @@ export class ApiOrdersService {
 
             const distance = await this.apiService.getDistance(origin, destination)
 
-            const newOrder = {
+            const order: any = {
                 origin: origin,
                 destination: destination,
                 distance: distance,
@@ -32,10 +32,39 @@ export class ApiOrdersService {
                 createdTimestamp: new Date(),
                 updatedTimestamp: new Date()
             }
-            const result = await this.orderRepository.save(newOrder)
+            const newOrder: EntityOrders = await this.orderRepository.save(order)
 
-            return result;
+            return {
+                id: newOrder.id,
+                distance: newOrder.distance,
+                status: newOrder.status
+            };
 
+        } catch (error) {
+            throw new InternalServerErrorException(error.message)
+        }
+    }
+
+    async getOrderList(page: number, limit: number) {
+        try {
+            const skip = (page - 1) * limit
+            const paginationResult: [EntityOrders[], number] = await this.orderRepository.findAndCount({
+                take: limit,
+                skip: skip
+            })
+            if (paginationResult[1]) {
+                const orderList = paginationResult[0].map((orderElement: EntityOrders) => {
+                    const order = {
+                        id: orderElement.id,
+                        distance: orderElement.distance,
+                        status: orderElement.status,
+                    }
+                    return order
+                })
+                return orderList;
+            } else {
+                return []
+            }
         } catch (error) {
             throw new InternalServerErrorException(error.message)
         }

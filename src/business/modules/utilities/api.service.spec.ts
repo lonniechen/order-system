@@ -4,8 +4,12 @@ import {
     HttpService,
     InternalServerErrorException
 } from '@nestjs/common';
-import { ApiService } from './api.service';
 import { of } from 'rxjs';
+
+import { ApiService } from './api.service';
+import {
+    HTTP_STATUS_CODE_OK,
+} from '../../constants/http-status-code.constants'
 
 describe('ApiService', () => {
 
@@ -49,7 +53,7 @@ describe('ApiService', () => {
                         }
                     ],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -74,7 +78,7 @@ describe('ApiService', () => {
                         }
                     ],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -99,7 +103,7 @@ describe('ApiService', () => {
                         }
                     ],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -123,7 +127,7 @@ describe('ApiService', () => {
                         }
                     ],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -141,7 +145,7 @@ describe('ApiService', () => {
                         elements: null
                     }],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -157,7 +161,7 @@ describe('ApiService', () => {
                 data: {
                     rows: [{}],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -173,7 +177,7 @@ describe('ApiService', () => {
                 data: {
                     rows: null
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -187,7 +191,7 @@ describe('ApiService', () => {
         it('should throw internal server error exception if rows is undefined', async () => {
             const distanceApiResponse = {
                 data: {},
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -201,7 +205,7 @@ describe('ApiService', () => {
         it('should throw internal server error exception if data is null', async () => {
             const distanceApiResponse = {
                 data: null,
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -215,7 +219,7 @@ describe('ApiService', () => {
         it('should throw internal server error exception if data is undefined', async () => {
             const distanceApiResponse = {
                 data: undefined,
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},
@@ -242,7 +246,7 @@ describe('ApiService', () => {
                         }
                     ],
                 },
-                status: 200,
+                status: HTTP_STATUS_CODE_OK,
                 statusText: 'OK',
                 headers: {},
                 config: {},

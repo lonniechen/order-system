@@ -1,15 +1,25 @@
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import {
+    HttpModule
+} from '@nestjs/common';
+import * as HttpMock from 'node-mocks-http';
+import * as AsyncLock from 'async-lock'
+
 import { EntityOrders } from '../../entities/orders/orders.entity';
 import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options';
-import { Repository } from 'typeorm';
 import { ApiOrdersController } from './orders.controller';
 import { ApiOrdersService } from './orders.service';
-import {
-    HttpModule,
-    InternalServerErrorException
-} from '@nestjs/common';
 import { ApiService } from '../utilities/api.service';
+import {
+    HTTP_STATUS_CODE_OK,
+    HTTP_STATUS_CODE_BAD_REQUEST,
+    HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR
+} from '../../constants/http-status-code.constants'
+import {
+    ORDER_STATUS_UNASSIGNED
+} from '../../constants/order-status.constants'
 
 describe('ApiOrdersController', () => {
 
@@ -28,7 +38,8 @@ describe('ApiOrdersController', () => {
                     useClass: Repository
                 },
                 ApiService,
-                ApiOrdersService
+                ApiOrdersService,
+                AsyncLock
             ]
         }).compile();
 
@@ -39,30 +50,75 @@ describe('ApiOrdersController', () => {
     describe('placeOrder', () => {
         const origin = ['40.66', '-73.89'];
         const destination = ['40.66', '-73.99'];
-        const status = 'UNASSIGNED';
+        const status = ORDER_STATUS_UNASSIGNED;
         const id = '5f81101ea85d4822302026a4';
         const distance = 9790;
 
         const errorMessage = 'An error'
 
-        it('should capture the exception from ApiOrdersService and throw internal server error exception', async () => {
+        it('should capture the exception from ApiOrdersService and return error message', async () => {
             jest.spyOn(ordersService, 'placeOrder').mockRejectedValue(new Error(errorMessage));
-            expect(
-                ordersController.placeOrder(origin, destination)
-            ).rejects.toThrow(new InternalServerErrorException(errorMessage))
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.placeOrder(origin, destination, res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject({ 'error': errorMessage });
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR);
         });
 
         it('should return the id, distance and status of an order', async () => {
-            const res = {
+            const body = {
                 status: status,
                 id: id,
                 distance: distance,
             };
-            jest.spyOn(ordersService, 'placeOrder').mockImplementation(() => Promise.resolve(res));
+            jest.spyOn(ordersService, 'placeOrder').mockImplementation(() => Promise.resolve(body));
 
-            expect(
-                await ordersController.placeOrder(origin, destination)
-            ).toMatchObject(res);
+            const res = HttpMock.createResponse()
+            const response = await ordersController.placeOrder(origin, destination, res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject(body);
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_OK);
+        });
+    });
+
+    describe('takeOrder', () => {
+
+        const id = '5f81101ea85d4822302026a4';
+
+        const errorMessage = 'An Error'
+
+        it('should capture the exception from ApiOrdersService and return error message', async () => {
+            jest.spyOn(ordersService, 'takeOrder').mockRejectedValue(new Error(errorMessage));
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.takeOrder(id, 'TAKEN', res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject({ 'error': errorMessage });
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR);
+        });
+
+        it('should return an object with status: "SUCCESS"', async () => {
+            const body = { status: 'SUCCESS' }
+            const result = {
+                httpStatusCode: HTTP_STATUS_CODE_OK,
+                body: body
+            }
+            jest.spyOn(ordersService, 'takeOrder').mockImplementation(() => Promise.resolve(result));
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.takeOrder(id, 'TAKEN', res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject(body);
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_OK);
         });
     });
 
@@ -72,28 +128,37 @@ describe('ApiOrdersController', () => {
 
         const errorMessage = 'An Error'
 
-        it('should capture the exception from ApiOrdersService and throw internal server error exception', async () => {
+        it('should capture the exception from ApiOrdersService and return error message', async () => {
             jest.spyOn(ordersService, 'getOrderList').mockRejectedValue(new Error(errorMessage));
-            expect(
-                ordersController.getOrderList(page, limit)
-            ).rejects.toThrow(new InternalServerErrorException(errorMessage))
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.getOrderList(page, limit, res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject({ 'error': errorMessage });
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR);
         });
 
         it('should return an empty array if there are no results from ApiOrdersService', async () => {
-            const res: any[] = []
-            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(res));
-            expect(
-                await ordersController.getOrderList(page, limit)
-            ).toMatchObject([]);
+            const body: any[] = []
+            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(body));
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.getOrderList(page, limit, res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject(body);
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_OK);
         });
 
         it('should return an array of EntityOrders', async () => {
-            const status = 'UNASSIGNED';
+            const status = ORDER_STATUS_UNASSIGNED;
             const distance = 9790;
             const id1 = '5f81101ea85d4822302026a4';
             const id2 = '5f81101ea85d4822302026a5';
-
-            const res: any[] = [
+            const body: any[] = [
                 {
                     status: status,
                     id: id1,
@@ -105,10 +170,15 @@ describe('ApiOrdersController', () => {
                     distance: distance,
                 },
             ]
-            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(res));
-            expect(
-                await ordersController.getOrderList(page, limit)
-            ).toMatchObject(res);
+            jest.spyOn(ordersService, 'getOrderList').mockImplementation(() => Promise.resolve(body));
+
+            const res = HttpMock.createResponse()
+            const response = await ordersController.getOrderList(page, limit, res)
+            const responseBody = JSON.parse(response._getData())
+            const responseHeader = response._getHeaders()
+
+            expect(responseBody).toMatchObject(body);
+            expect(responseHeader.http).toEqual(HTTP_STATUS_CODE_OK);
         });
     });
 });

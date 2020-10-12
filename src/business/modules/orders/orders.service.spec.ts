@@ -1,14 +1,21 @@
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EntityOrders } from '../../entities/orders/orders.entity';
-import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options';
 import { Repository } from 'typeorm';
-import { ApiOrdersService } from './orders.service';
 import {
     HttpModule,
     InternalServerErrorException
 } from '@nestjs/common';
+import * as AsyncLock from 'async-lock'
+
+import { EntityOrders } from '../../entities/orders/orders.entity';
+import { DB_CONN_NAME_ORDER } from '../../../database/mongodb.options';
+import { ApiOrdersService } from './orders.service';
 import { ApiService } from '../utilities/api.service';
+
+import {
+    ORDER_STATUS_TAKEN,
+    ORDER_STATUS_UNASSIGNED
+} from '../../constants/order-status.constants'
 
 describe('ApiOrdersService', () => {
 
@@ -27,7 +34,8 @@ describe('ApiOrdersService', () => {
                     useClass: Repository
                 },
                 ApiService,
-                ApiOrdersService
+                ApiOrdersService,
+                AsyncLock
             ]
         }).compile();
 
@@ -39,8 +47,8 @@ describe('ApiOrdersService', () => {
     describe('placeOrder', () => {
         const origin = ['40.66', '-73.89'];
         const destination = ['40.66', '-73.99'];
-        const status = 'UNASSIGNED';
-        const id = '5f81101ea85d4822302026a4';
+        const status = ORDER_STATUS_UNASSIGNED;
+        const _id = '5f81101ea85d4822302026a4';
         const distance = 9790;
         const createdTimestamp = new Date('2020-01-01');
         const updatedTimestamp = new Date('2020-01-02');
@@ -67,7 +75,7 @@ describe('ApiOrdersService', () => {
                 origin: origin,
                 destination: destination,
                 status: status,
-                id: id,
+                _id: _id,
                 distance: distance,
                 createdTimestamp: createdTimestamp,
                 updatedTimestamp: updatedTimestamp
@@ -78,7 +86,7 @@ describe('ApiOrdersService', () => {
                 await ordersService.placeOrder(origin, destination)
             ).toMatchObject({
                 status: status,
-                id: id,
+                id: _id,
                 distance: distance
             });
         });
@@ -111,12 +119,12 @@ describe('ApiOrdersService', () => {
         it('should return an array of EntityOrders', async () => {
             const origin = ['40.66', '-73.89'];
             const destination = ['40.66', '-73.99'];
-            const status = 'UNASSIGNED';
+            const status = ORDER_STATUS_UNASSIGNED;
             const distance = 9790;
             const createdTimestamp = new Date('2020-01-01');
             const updatedTimestamp = new Date('2020-01-02');
-            const id1 = '5f81101ea85d4822302026a4';
-            const id2 = '5f81101ea85d4822302026a5';
+            const _id1 = '5f81101ea85d4822302026a4';
+            const _id2 = '5f81101ea85d4822302026a5';
 
             const paginationResult: [EntityOrders[], number] = [
                 [
@@ -124,7 +132,7 @@ describe('ApiOrdersService', () => {
                         origin: origin,
                         destination: destination,
                         status: status,
-                        id: id1,
+                        _id: _id1,
                         distance: distance,
                         createdTimestamp: createdTimestamp,
                         updatedTimestamp: updatedTimestamp
@@ -133,7 +141,7 @@ describe('ApiOrdersService', () => {
                         origin: origin,
                         destination: destination,
                         status: status,
-                        id: id2,
+                        _id: _id2,
                         distance: distance,
                         createdTimestamp: createdTimestamp,
                         updatedTimestamp: updatedTimestamp
@@ -147,13 +155,13 @@ describe('ApiOrdersService', () => {
             ).toMatchObject([
                 {
                     status: status,
-                    id: id1,
+                    id: _id1,
                     distance: distance
 
                 },
                 {
                     status: status,
-                    id: id2,
+                    id: _id2,
                     distance: distance
                 },
             ]);

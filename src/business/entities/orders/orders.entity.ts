@@ -9,7 +9,7 @@ import { ObjectID } from 'mongodb'
 export class EntityOrders {
 
     @ObjectIdColumn()
-    id: ObjectID;
+    _id: ObjectID;
 
     @Column()
     origin: Array<string>;

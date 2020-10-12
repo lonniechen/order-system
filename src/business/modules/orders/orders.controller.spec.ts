@@ -14,7 +14,6 @@ import { ApiOrdersService } from './orders.service';
 import { ApiService } from '../utilities/api.service';
 import {
     HTTP_STATUS_CODE_OK,
-    HTTP_STATUS_CODE_BAD_REQUEST,
     HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR
 } from '../../constants/http-status-code.constants'
 import {

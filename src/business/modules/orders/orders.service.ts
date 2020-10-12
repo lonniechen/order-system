@@ -27,7 +27,6 @@ export class ApiOrdersService {
     constructor(
         @InjectRepository(EntityOrders, DB_CONN_NAME_ORDER)
         private readonly orderRepository: MongoRepository<EntityOrders>,
-
         private readonly apiService: ApiService,
         private readonly asyncLock: AsyncLock
     ) { }
@@ -58,59 +57,57 @@ export class ApiOrdersService {
     }
 
     async takeOrder(id: string, status: string) {
-        if (status !== 'TAKEN') {
-            return {
-                httpStatusCode: HTTP_STATUS_CODE_BAD_REQUEST,
-                body: {
-                    error: `{status} must be 'TAKEN' in the request body`
-                }
-            }
-        }
         try {
-            const result = await this.asyncLock.acquire(id, this.processTakeOrder(id, status))
+            const result = await this.asyncLock.acquire(id, async () => {
+                return await this.processTakeOrder(id, status)
+            })
             return result
         } catch (error) {
             throw new InternalServerErrorException(error.message)
         }
     }
 
-    private async processTakeOrder(id: string, status: string) {
-        if (status !== 'TAKEN') {
-            return {
-                httpStatusCode: HTTP_STATUS_CODE_BAD_REQUEST,
-                body: {
-                    error: `{status} must be 'TAKEN' in the request body`
+    async processTakeOrder(id: string, status: string) {
+        try {
+            if (status !== 'TAKEN') {
+                return {
+                    httpStatusCode: HTTP_STATUS_CODE_BAD_REQUEST,
+                    body: {
+                        error: `{status} must be 'TAKEN' in the request body`
+                    }
                 }
             }
-        }
-        const targetOrder = await this.orderRepository.findOne({
-            _id: new ObjectID(id)
-        })
-        if (!targetOrder) {
-            return {
-                httpStatusCode: HTTP_STATUS_CODE_NOT_FOUND,
-                body: {
-                    error: `order (id:${id}) not found`
+            const targetOrder = await this.orderRepository.findOne({
+                _id: new ObjectID(id)
+            })
+            if (!targetOrder) {
+                return {
+                    httpStatusCode: HTTP_STATUS_CODE_NOT_FOUND,
+                    body: {
+                        error: `order (id:${id}) not found`
+                    }
                 }
             }
-        }
-        if (targetOrder.status === ORDER_STATUS_UNASSIGNED) {
-            targetOrder.status = ORDER_STATUS_TAKEN
-            targetOrder.updatedTimestamp = new Date()
-            await this.orderRepository.save(targetOrder)
-            return {
-                httpStatusCode: HTTP_STATUS_CODE_OK,
-                body: {
-                    status: 'SUCCESS'
+            if (targetOrder.status === ORDER_STATUS_UNASSIGNED) {
+                targetOrder.status = ORDER_STATUS_TAKEN
+                targetOrder.updatedTimestamp = new Date()
+                await this.orderRepository.save(targetOrder)
+                return {
+                    httpStatusCode: HTTP_STATUS_CODE_OK,
+                    body: {
+                        status: 'SUCCESS'
+                    }
+                }
+            } else {
+                return {
+                    httpStatusCode: HTTP_STATUS_CODE_FORBIDDEN,
+                    body: {
+                        error: `fail to take order (id:${id}), which had been taken already`
+                    }
                 }
             }
-        } else {
-            return {
-                httpStatusCode: HTTP_STATUS_CODE_FORBIDDEN,
-                body: {
-                    error: `fail to take order (id:${id}), which had been taken already`
-                }
-            }
+        } catch (error) {
+            throw new InternalServerErrorException(error.message)
         }
     }
 

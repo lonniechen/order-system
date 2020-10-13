@@ -16,11 +16,11 @@ export class ApiService {
             params: {
                 origins: origin.join(','),
                 destinations: destination.join(','),
-                key: 'AIzaSyDZHxHsasPQ37Lo-f15C_rcQsxSE9ImcNk'
+                key: process.env.DISTANCE_API_KEY
             }
         }
         try {
-            const distanceRes = await this.httpService.get('https://maps.googleapis.com/maps/api/distancematrix/json', distanceReqConfig).toPromise()
+            const distanceRes = await this.httpService.get(process.env.DISTANCE_API_URL, distanceReqConfig).toPromise()
             const distance = distanceRes.data?.rows[0]?.elements[0]?.distance?.value;
             if (distance === null || distance === undefined) {
                 throw new InternalServerErrorException('unable to get proper data from distance API')

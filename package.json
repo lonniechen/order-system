@@ -3,7 +3,10 @@
     "version": "1.0.0",
     "scripts": {
         "test": "jest --coverage",
-        "start:dev": "nodemon"
+        "start:dev": "rimraf dist && nodemon",
+        "start:prod": "set NODE_ENV=prod && node dist/main.js",
+        "build": "tsc -p tsconfig.json",
+        "start": "npm run build && npm run start:prod"
     },
     "repository": {
         "type": "git",
@@ -17,6 +20,7 @@
     "homepage": "https://github.com/lonniechen/order-system#readme",
     "dependencies": {
         "@nestjs/common": "^7.4.4",
+        "@nestjs/config": "^0.5.0",
         "@nestjs/core": "^7.4.4",
         "@nestjs/platform-express": "^7.4.4",
         "@nestjs/typeorm": "^7.1.4",

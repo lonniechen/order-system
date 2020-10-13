@@ -14,9 +14,9 @@ export class MongodbOptions implements TypeOrmOptionsFactory {
     async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
         return {
             type: 'mongodb',
-            host: '127.0.0.1',
-            port: 27017,
-            database: 'project',
+            host: process.env.MONGO_HOST,
+            port: parseInt(process.env.MONGO_PORT),
+            database: process.env.MONGO_DATABASE,
             keepConnectionAlive: true,
             synchronize: false,
             useUnifiedTopology: true,

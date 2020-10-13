@@ -14,9 +14,6 @@ export class PageLimitValidationPipe implements PipeTransform {
         if (!queryParam) {
             throw new BadRequestException(`${metaData.data} is a mandatory query parameter in the request`);
         }
-        if (typeof queryParam !== 'string') {
-            throw new BadRequestException(`${metaData.data} should be string as a query parameter in the request`);
-        }
         if (!Validator.isInt(queryParam, {
             allow_leading_zeroes: false,
             min: 1

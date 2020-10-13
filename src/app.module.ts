@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config'
 import { MongodbOptions } from './database/mongodb.options';
 import { ApiOrdersModule } from './business/modules/orders/orders.module'
 import { DB_CONN_NAME_ORDER } from './database/mongodb.options'
-import { AppController } from "./app.controller"
+import { AppController } from './app.controller'
 
 export class AppModule {
     static forRoot(env: string): DynamicModule {

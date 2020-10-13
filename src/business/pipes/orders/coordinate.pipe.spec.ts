@@ -74,7 +74,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of length equals to 3', async () => {
-            const coordinate = ['40.66', '-73.89', "10.22"]
+            const coordinate = ['40.66', '-73.89', '10.22']
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -92,7 +92,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of alphabetical latlong', async () => {
-            const coordinate = ["aaaa", '-73.89']
+            const coordinate = ['aaaa', '-73.89']
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -101,7 +101,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should throw exception for coordinate of alphabetical latlong', async () => {
-            const coordinate = ["999", '-73.89']
+            const coordinate = ['999', '-73.89']
             expect(
                 coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).rejects.toThrow(
@@ -110,7 +110,7 @@ describe('CoordinateValidationPipe', () => {
         });
 
         it('should return coordinate if the input is valid', async () => {
-            const coordinate = ['40.66', "-74.89"]
+            const coordinate = ['40.66', '-74.89']
             expect(
                 await coordinanteValidationPipe.transform(coordinate, metaDataOrigin)
             ).toStrictEqual(coordinate)

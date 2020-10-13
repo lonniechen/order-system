@@ -118,7 +118,7 @@ export class ApiOrdersService {
                 take: limit,
                 skip: skip
             })
-            if (paginationResult[1]) {
+            if (paginationResult[0] && paginationResult[0].length) {
                 const orderList = paginationResult[0].map((orderElement: EntityOrders) => {
                     const order = {
                         id: orderElement._id,

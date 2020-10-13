@@ -20,7 +20,6 @@ describe('PageLimitValidationPiple', () => {
     });
 
     describe('transform', () => {
-
         const metaDataPage: ArgumentMetadata = {
             data: 'page',
             type: 'body'
@@ -52,15 +51,6 @@ describe('PageLimitValidationPiple', () => {
                 pageLimitValidationPipe.transform(queryParam, metaDataPage)
             ).rejects.toThrow(
                 generateBadRequestException('missing-page-limit-value')
-            );
-        });
-
-        it('should throw exception for non-string type query parameter', async () => {
-            const queryParam = 111
-            expect(
-                pageLimitValidationPipe.transform(queryParam, metaDataPage)
-            ).rejects.toThrow(
-                generateBadRequestException('not-string-type-query-parameter')
             );
         });
 

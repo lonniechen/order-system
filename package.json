@@ -1,6 +1,7 @@
 {
     "name": "order-system-project",
     "version": "1.0.0",
+    "main": "src/main.ts",
     "scripts": {
         "test": "jest --coverage",
         "start:dev": "rimraf dist && nodemon",
@@ -39,6 +40,7 @@
     "devDependencies": {
         "@nestjs/testing": "^7.4.4",
         "@types/jest": "^26.0.14",
+        "husky": "^4.3.0",
         "jest": "^26.5.2",
         "ts-jest": "^26.4.1"
     },
@@ -62,5 +64,10 @@
             ".module.ts"
         ],
         "testEnvironment": "node"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run test"
+        }
     }
 }

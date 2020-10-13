@@ -9,7 +9,7 @@ describe('StringInputValidationPipe', () => {
 
     let stringInputValidationPipe: StringInputValidationPipe;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             providers: [
                 StringInputValidationPipe

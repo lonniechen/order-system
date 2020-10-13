@@ -9,7 +9,7 @@ describe('PageLimitValidationPiple', () => {
 
     let pageLimitValidationPipe: PageLimitValidationPipe;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             providers: [
                 PageLimitValidationPipe

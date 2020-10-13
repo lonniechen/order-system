@@ -9,7 +9,7 @@ describe('CoordinateValidationPipe', () => {
 
     let coordinanteValidationPipe: CoordinateValidationPipe;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             providers: [
                 CoordinateValidationPipe

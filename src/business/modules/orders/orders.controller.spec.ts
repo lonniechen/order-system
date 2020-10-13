@@ -25,7 +25,15 @@ describe('ApiOrdersController', () => {
     let ordersController: ApiOrdersController;
     let ordersService: ApiOrdersService;
 
-    beforeEach(async () => {
+    const origin = ['40.66', '-73.89'];
+    const destination = ['40.66', '-73.99'];
+    const status = ORDER_STATUS_UNASSIGNED;
+    const id = '5f81101ea85d4822302026a4';
+    const distance = 9790;
+
+    const errorMessage = 'An error'
+
+    beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             controllers: [ApiOrdersController],
             imports: [
@@ -47,14 +55,6 @@ describe('ApiOrdersController', () => {
     });
 
     describe('placeOrder', () => {
-        const origin = ['40.66', '-73.89'];
-        const destination = ['40.66', '-73.99'];
-        const status = ORDER_STATUS_UNASSIGNED;
-        const id = '5f81101ea85d4822302026a4';
-        const distance = 9790;
-
-        const errorMessage = 'An error'
-
         it('should capture the exception from ApiOrdersService and return error message', async () => {
             jest.spyOn(ordersService, 'placeOrder').mockRejectedValue(new Error(errorMessage));
 
@@ -86,11 +86,6 @@ describe('ApiOrdersController', () => {
     });
 
     describe('takeOrder', () => {
-
-        const id = '5f81101ea85d4822302026a4';
-
-        const errorMessage = 'An Error'
-
         it('should capture the exception from ApiOrdersService and return error message', async () => {
             jest.spyOn(ordersService, 'takeOrder').mockRejectedValue(new Error(errorMessage));
 
@@ -153,10 +148,10 @@ describe('ApiOrdersController', () => {
         });
 
         it('should return an array of EntityOrders', async () => {
-            const status = ORDER_STATUS_UNASSIGNED;
-            const distance = 9790;
+
             const id1 = '5f81101ea85d4822302026a4';
             const id2 = '5f81101ea85d4822302026a5';
+            
             const body: any[] = [
                 {
                     status: status,

@@ -30,6 +30,18 @@ describe('ApiOrdersService', () => {
     let orderRepository: Repository<EntityOrders>;
     let asyncLock: AsyncLock;
 
+    const origin = ['40.66', '-73.89'];
+    const destination = ['40.66', '-73.99'];
+    const _id = '5f81101ea85d4822302026a4';
+    const distance = 9790;
+    const createdTimestamp = new Date('2020-01-01');
+    const updatedTimestamp = new Date('2020-01-02');
+
+    const page = 2;
+    const limit = 2;
+
+    const errorMessage = 'An Error'
+
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [
@@ -53,16 +65,6 @@ describe('ApiOrdersService', () => {
     });
 
     describe('placeOrder', () => {
-        const origin = ['40.66', '-73.89'];
-        const destination = ['40.66', '-73.99'];
-        const status = ORDER_STATUS_UNASSIGNED;
-        const _id = '5f81101ea85d4822302026a4';
-        const distance = 9790;
-        const createdTimestamp = new Date('2020-01-01');
-        const updatedTimestamp = new Date('2020-01-02');
-
-        const errorMessage = 'An Error'
-
         it('should capture the exception from ApiService and throw internal server error exception', async () => {
             jest.spyOn(apiService, 'getDistance').mockRejectedValue(new Error(errorMessage))
             expect(
@@ -82,7 +84,7 @@ describe('ApiOrdersService', () => {
             const newOrder: EntityOrders = {
                 origin: origin,
                 destination: destination,
-                status: status,
+                status: ORDER_STATUS_UNASSIGNED,
                 _id: _id,
                 distance: distance,
                 createdTimestamp: createdTimestamp,
@@ -93,7 +95,7 @@ describe('ApiOrdersService', () => {
             expect(
                 await ordersService.placeOrder(origin, destination)
             ).toMatchObject({
-                status: status,
+                status: ORDER_STATUS_UNASSIGNED,
                 id: _id,
                 distance: distance
             });
@@ -102,22 +104,17 @@ describe('ApiOrdersService', () => {
 
 
     describe('takeOrder', () => {
-        const _id = '5f81101ea85d4822302026a4';
-        const status = ORDER_STATUS_TAKEN;
-
-        const errorMessage = 'An Error'
-
         it('should capture the exception from asyncLock and throw internal server error exception', async () => {
             jest.spyOn(asyncLock, 'acquire').mockRejectedValue(new Error(errorMessage));
             expect(
-                ordersService.takeOrder(_id, status)
+                ordersService.takeOrder(_id, ORDER_STATUS_TAKEN)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
         });
 
         it('should capture the exception from processTakeOrder and throw internal server error exception', async () => {
             jest.spyOn(ordersService, 'processTakeOrder').mockRejectedValue(new Error(errorMessage));
             expect(
-                ordersService.takeOrder(_id, status)
+                ordersService.takeOrder(_id, ORDER_STATUS_TAKEN)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
         });
 
@@ -130,7 +127,7 @@ describe('ApiOrdersService', () => {
             }
             jest.spyOn(asyncLock, 'acquire').mockImplementation(() => Promise.resolve(result));
             expect(
-                await ordersService.takeOrder(_id, status)
+                await ordersService.takeOrder(_id, ORDER_STATUS_TAKEN)
             ).toMatchObject(result)
         });
 
@@ -143,7 +140,7 @@ describe('ApiOrdersService', () => {
             }
             jest.spyOn(ordersService, 'processTakeOrder').mockImplementation(() => Promise.resolve(result));
             expect(
-                await ordersService.takeOrder(_id, status)
+                await ordersService.takeOrder(_id, ORDER_STATUS_TAKEN)
             ).toMatchObject(result)
         });
     });
@@ -185,16 +182,6 @@ describe('ApiOrdersService', () => {
             }
         }
 
-        const origin = ['40.66', '-73.89'];
-        const destination = ['40.66', '-73.99'];
-        const _id = '5f81101ea85d4822302026a4';
-        const distance = 9790;
-        const status = ORDER_STATUS_TAKEN;
-        const createdTimestamp = new Date('2020-01-01');
-        const updatedTimestamp = new Date('2020-01-02');
-
-        const errorMessage = 'An Error'
-
         it('should return bad request exception if status is not "TAKEN"', async () => {
             expect(
                 await ordersService.processTakeOrder(_id, 'A random status')
@@ -204,7 +191,7 @@ describe('ApiOrdersService', () => {
         it('should return not found exception if the id can not be found in the database', async () => {
             jest.spyOn(orderRepository, 'findOne').mockImplementation(() => Promise.resolve(null));
             expect(
-                await ordersService.processTakeOrder(_id, status)
+                await ordersService.processTakeOrder(_id, ORDER_STATUS_TAKEN)
             ).toMatchObject(generateResult(_id, 'order_not_found'))
         });
 
@@ -212,7 +199,7 @@ describe('ApiOrdersService', () => {
             const targetOrder: EntityOrders = {
                 origin: origin,
                 destination: destination,
-                status: status,
+                status: ORDER_STATUS_TAKEN,
                 _id: _id,
                 distance: distance,
                 createdTimestamp: createdTimestamp,
@@ -220,14 +207,14 @@ describe('ApiOrdersService', () => {
             }
             jest.spyOn(orderRepository, 'findOne').mockImplementation(() => Promise.resolve(targetOrder));
             expect(
-                await ordersService.processTakeOrder(_id, status)
+                await ordersService.processTakeOrder(_id, ORDER_STATUS_TAKEN)
             ).toMatchObject(generateResult(_id, 'order_is_taken'))
         });
 
         it('should exception from orderRepository.findOne and throw internal server error exception', async () => {
             jest.spyOn(orderRepository, 'findOne').mockRejectedValue(new Error(errorMessage));
             expect(
-                ordersService.processTakeOrder(_id, status)
+                ordersService.processTakeOrder(_id, ORDER_STATUS_TAKEN)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
         });
 
@@ -244,7 +231,7 @@ describe('ApiOrdersService', () => {
             jest.spyOn(orderRepository, 'findOne').mockImplementation(() => Promise.resolve(targetOrder));
             jest.spyOn(orderRepository, 'save').mockRejectedValue(new Error(errorMessage));
             expect(
-                ordersService.processTakeOrder(_id, status)
+                ordersService.processTakeOrder(_id, ORDER_STATUS_TAKEN)
             ).rejects.toThrow(new InternalServerErrorException(errorMessage));
         });
 
@@ -261,16 +248,12 @@ describe('ApiOrdersService', () => {
             jest.spyOn(orderRepository, 'findOne').mockImplementation(() => Promise.resolve(targetOrder));
             jest.spyOn(orderRepository, 'save').mockImplementation(() => Promise.resolve(null));
             expect(
-                await ordersService.processTakeOrder(_id, status)
+                await ordersService.processTakeOrder(_id, ORDER_STATUS_TAKEN)
             ).toMatchObject(generateResult(_id, 'success'))
         });
     })
 
     describe('getOrderList', () => {
-        const page = 2;
-        const limit = 2;
-
-        const errorMessage = 'An Error'
 
         it('should capture the exception from OrderEntityRepository and throw internal server error exception', async () => {
             jest.spyOn(orderRepository, 'findAndCount').mockRejectedValue(new Error(errorMessage));
@@ -291,12 +274,7 @@ describe('ApiOrdersService', () => {
         });
 
         it('should return an array of EntityOrders', async () => {
-            const origin = ['40.66', '-73.89'];
-            const destination = ['40.66', '-73.99'];
-            const status = ORDER_STATUS_UNASSIGNED;
-            const distance = 9790;
-            const createdTimestamp = new Date('2020-01-01');
-            const updatedTimestamp = new Date('2020-01-02');
+
             const _id1 = '5f81101ea85d4822302026a4';
             const _id2 = '5f81101ea85d4822302026a5';
 
@@ -305,7 +283,7 @@ describe('ApiOrdersService', () => {
                     {
                         origin: origin,
                         destination: destination,
-                        status: status,
+                        status: ORDER_STATUS_UNASSIGNED,
                         _id: _id1,
                         distance: distance,
                         createdTimestamp: createdTimestamp,
@@ -314,7 +292,7 @@ describe('ApiOrdersService', () => {
                     {
                         origin: origin,
                         destination: destination,
-                        status: status,
+                        status: ORDER_STATUS_UNASSIGNED,
                         _id: _id2,
                         distance: distance,
                         createdTimestamp: createdTimestamp,
@@ -328,13 +306,13 @@ describe('ApiOrdersService', () => {
                 await ordersService.getOrderList(page, limit)
             ).toMatchObject([
                 {
-                    status: status,
+                    status: ORDER_STATUS_UNASSIGNED,
                     id: _id1,
                     distance: distance
 
                 },
                 {
-                    status: status,
+                    status: ORDER_STATUS_UNASSIGNED,
                     id: _id2,
                     distance: distance
                 },

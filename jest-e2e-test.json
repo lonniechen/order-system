@@ -1,0 +1,22 @@
+{
+    "verbose": true,
+    "moduleFileExtensions": [
+        "js",
+        "json",
+        "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".e2e.ts$",
+    "transform": {
+        "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+        "**/*.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+        "<rootDir>/main.ts",
+        ".module.ts",
+        ".spec.ts"
+    ],
+    "testEnvironment": "node"
+}

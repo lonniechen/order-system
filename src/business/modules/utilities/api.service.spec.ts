@@ -16,7 +16,7 @@ describe('ApiService', () => {
     let apiService: ApiService;
     let httpService: HttpService;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [
                 HttpModule,

@@ -1,5 +1,5 @@
 {
-    "name": "order-system-project",
+    "name": "order-system",
     "version": "1.0.0",
     "main": "src/main.ts",
     "scripts": {
@@ -33,10 +33,8 @@
         "node-mocks-http": "^1.9.0",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^6.6.3",
-        "supertest": "^5.0.0",
         "ts-node": "^9.0.0",
         "typeorm": "^0.2.28",
-        "typescript": "^4.0.3",
         "validator": "^13.1.17"
     },
     "devDependencies": {
@@ -44,7 +42,10 @@
         "@types/jest": "^26.0.14",
         "husky": "^4.3.0",
         "jest": "^26.5.2",
-        "ts-jest": "^26.4.1"
+        "nodemon": "^2.0.5",
+        "supertest": "^5.0.0",
+        "ts-jest": "^26.4.1",
+        "typescript": "^4.0.3"
     },
     "husky": {
         "hooks": {

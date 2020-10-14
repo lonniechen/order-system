@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+    app:
+        image: order-system:1.0.0
+        ports:
+            - 8080:8080
+        container_name: order-system-app
+        depends_on:
+            - mongodb
+        environment:
+            DOCKER_MONGO_HOST: mongodb
+    mongodb:
+        image: mongo:latest
+        ports:
+            - 27017:27017
+        container_name: order-system-mongodb

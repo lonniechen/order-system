@@ -5,8 +5,8 @@
         "json",
         "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".e2e.ts$",
+    "rootDir": "../src",
+    "testRegex": ".unit.test.ts$",
     "transform": {
         "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -16,7 +16,7 @@
     "coveragePathIgnorePatterns": [
         "<rootDir>/main.ts",
         ".module.ts",
-        ".spec.ts"
+        ".e2e.test.ts"
     ],
     "testEnvironment": "node"
 }

@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "main": "src/main.ts",
     "scripts": {
-        "test:unit": "jest --config=jest-unit-test.json --runInBand --coverage",
-        "test:e2e": "set NODE_ENV=tst && jest --config=jest-e2e-test.json --runInBand --coverage --detectOpenHandles --forceExit",
+        "test:unit": "jest --config test/jest-unit-test.json --runInBand --coverage",
+        "test:e2e": "set NODE_ENV=tst && jest --config test/jest-e2e-test.json --runInBand --coverage --detectOpenHandles --forceExit",
         "start:dev": "rimraf dist && nodemon",
         "start:prod": "set NODE_ENV=prod && node dist/main.js",
         "build": "tsc -p tsconfig.json",
